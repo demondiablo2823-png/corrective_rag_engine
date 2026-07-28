@@ -4,6 +4,7 @@ import os
 import tempfile
 from chain.final_chain import ask
 from ingestion.ingest import ingest
+from config.vectordb import delete_collection
 
 st.title("RAG Chatbot")
 
@@ -52,6 +53,12 @@ if "ingested" in st.session_state:
                 st.write(source)
 
         st.session_state.messages.append({"role": "assistant", "content": answer})
+
+    st.divider()
+    if st.button("End Session & Clear Data"):
+        delete_collection()
+        st.session_state.clear()
+        st.rerun()
 
 else:
     st.info("Please upload a PDF to start chatting.")

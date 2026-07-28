@@ -24,6 +24,11 @@ def get_vectorstore() -> QdrantVectorStore:
         retrieval_mode=RetrievalMode.HYBRID,
     )
 
+def delete_collection():
+    if sync_client.collection_exists("rag"):
+        sync_client.delete_collection("rag")
+
+
 async def get_db(docs, k=5):
     vectorstore = await QdrantVectorStore.afrom_documents(
         docs,
