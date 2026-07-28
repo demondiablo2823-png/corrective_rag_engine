@@ -15,9 +15,14 @@ def get_sparse_embedd():
 
 
 def get_client():
+    url = (os.getenv("QDRANT_endpoint") or "").strip()
+    if url and not url.startswith("http://") and not url.startswith("https://"):
+        url = f"https://{url}"
+    if url and ".qdrant.io" in url and not url.endswith(":6333") and not url.endswith(":6334"):
+        url = f"{url}:6333"
     return QdrantClient(
-        url=os.getenv("QDRANT_endpoint"),
-        api_key=os.getenv("QDRANT_key"),
+        url=url,
+        api_key=(os.getenv("QDRANT_key") or "").strip(),
     )
 
 def get_vectorstore() -> QdrantVectorStore:
@@ -36,7 +41,6 @@ async def get_db(docs, k=5):
         sparse_embedding=get_sparse_embedd(),
         retrieval_mode=RetrievalMode.HYBRID,
         collection_name="rag",
-        url=os.getenv("QDRANT_endpoint"),
-        api_key=os.getenv("QDRANT_key"),
+        client=get_client(),
     )
     return vectorstore.as_retriever(search_kwargs={"k": k})

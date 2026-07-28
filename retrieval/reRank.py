@@ -14,12 +14,13 @@ def get_cohere():
 
 
 def ranker(query, docs, top_n=5):
+    if not docs:
+        return []
     co = get_cohere()
     results = co.rerank(
         model="rerank-v3.5",
         query=query,
         documents=[doc.page_content for doc in docs],
-        top_n=top_n
+        top_n=min(top_n, len(docs))
     ).results
-
     return [docs[r.index] for r in results]
