@@ -1,6 +1,6 @@
 # Corrective RAG (CRAG) Engine with Hybrid Search & Dynamic Fallback
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+**Live Demo:** [demon-crag.streamli
 [![LangChain](https://img.shields.io/badge/LangChain-LCEL-green.svg)](https://www.langchain.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-ff4b4b.svg)](https://streamlit.io/)
 [![Qdrant](https://img.shields.io/badge/Qdrant-Hybrid%20VectorDB-red.svg)](https://qdrant.tech/)
