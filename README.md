@@ -76,13 +76,9 @@ This repository implements a multi-stage retrieval and self-correction pipeline 
 
 ---
 
-## 🖼️ User Interface & Screenshots
+## 🖼️ User Interface
 
-| Chat & Query Expansion | Source Attribution & Expansion |
-| :---: | :---: |
-| ![Chat Interface](assets/chat.png) | ![Source Attribution](assets/sources.png) |
-
-> *Note: Place UI screenshots (`chat.png`, `sources.png`) and a short demo GIF (`demo.gif`) into the `assets/` directory.*
+![UI Screenshot](assets/ss.png)rt demo GIF (`demo.gif`) into the `assets/` directory.*
 
 ---
 
