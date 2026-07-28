@@ -1,179 +1,284 @@
-# Corrective RAG (CRAG) Engine with Hybrid Search & Dynamic Fallback
+# 🚀 Corrective RAG Engine
 
-**Live Demo:** [demon-crag.streamli
-[![LangChain](https://img.shields.io/badge/LangChain-LCEL-green.svg)](https://www.langchain.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-App-ff4b4b.svg)](https://streamlit.io/)
-[![Qdrant](https://img.shields.io/badge/Qdrant-Hybrid%20VectorDB-red.svg)](https://qdrant.tech/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+> A production-style Retrieval-Augmented Generation (RAG) application featuring **Hybrid Search**, **Corrective RAG (CRAG)**, **Multi-Query Retrieval**, **Web Search Fallback**, **Cross-Encoder Re-Ranking**, and **Conversation Memory**.
 
-A Retrieval-Augmented Generation (RAG) pipeline implementing **Multi-Query Expansion**, **Qdrant Dense + BM25 Hybrid Search**, **Corrective RAG (CRAG) Document Self-Grading**, **Tavily Web Search Fallback**, **Cohere v3.5 Re-Ranking**, and **Trimmed Conversation Memory**.
+<p align="center">
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-success?style=for-the-badge)](YOUR_STREAMLIT_LINK)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge)](https://www.python.org/)
+[![LangChain](https://img.shields.io/badge/LangChain-LCEL-green?style=for-the-badge)](https://www.langchain.com/)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Hybrid_Search-red?style=for-the-badge)](https://qdrant.tech/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Deployed-ff4b4b?style=for-the-badge)](https://streamlit.io/)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+
+</p>
+
+---
+
+## 🌐 Live Demo
+
+**👉 https://YOUR-STREAMLIT-APP.streamlit.app**
+
+Upload a PDF, ask questions, and watch the retrieval pipeline automatically decide whether to answer from your documents or perform a live web search.
 
 ---
 
-## 📌 Technical Summary
+## ✨ Features
 
-This repository implements a multi-stage retrieval and self-correction pipeline designed to maximize context quality and reduce model hallucination:
-
-- **Document Processing**: PDF parsing via `PyMuPDFLoader` and recursive chunking (`chunk_size=800`, `chunk_overlap=100`).
-- **Hybrid Vector Retrieval**: Qdrant VectorStore combining dense embeddings (`BAAI/bge-small-en-v1.5`) and sparse lexical search (`Qdrant/bm25`).
-- **Multi-Query Synthesis**: Asynchronous LLM query generation producing 3 variations to increase candidate recall.
-- **CRAG Relevance Grading**: Document evaluator LLM step scoring context relevance. Triggers real-time web search via Tavily when retrieved documents are insufficient.
-- **Cross-Encoder Re-Ranking**: Cohere `rerank-v3.5` re-scoring candidates for optimal context density.
-- **Memory Management**: LangChain `trim_messages` window strategy (400 tokens limit) preserving system context and conversation history.
+- 📄 Upload and chat with PDF documents
+- 🔍 Hybrid Retrieval (Dense + Sparse/BM25)
+- 🔄 Multi-Query Expansion for improved recall
+- 🧠 Corrective RAG (CRAG) document grading
+- 🌐 Tavily Web Search fallback when local context is insufficient
+- 🎯 Cohere Cross-Encoder Re-ranking
+- 💬 Conversation memory with automatic history trimming
+- ⚡ Streamlit chat interface with source attribution
 
 ---
-# 🏗 Architecture
 
 ```mermaid
 flowchart TD
-    A([User Query])
 
-    B["Multi-Query Expansion<br/>(3 Query Variations)"]
-
-    C["Hybrid Retrieval<br/>Qdrant (Dense + BM25)"]
-
-    D["Candidate Deduplication"]
-
-    E{"CRAG<br/>Relevance Grading"}
-
-    F["Local Documents"]
-
-    G["Tavily Web Search"]
-
-    H["Cohere Re-Rank<br/>(Top-N Context)"]
-
-    I["History-Aware Generation<br/>(Trimmed Memory)"]
-
-    J([Streamlit Chat UI])
+    A[User Query]
+    B[Multi-Query Expansion]
+    C[Hybrid Retrieval<br/>Dense + Sparse]
+    D[Candidate Deduplication]
+    E{CRAG Relevance Grading}
+    F[Local Documents]
+    G[Tavily Web Search]
+    H[Cohere Re-Ranking]
+    I[History-Aware Generation]
+    J[Streamlit Chat UI]
 
     A --> B
     B --> C
     C --> D
     D --> E
-
-    E -- Relevant --> F
-    E -- Weak / Ambiguous --> G
-
+    E -->|Relevant| F
+    E -->|Weak / Ambiguous| G
     F --> H
     G --> H
-
     H --> I
     I --> J
 ```
 
-## 🖼️ User Interface
+# 🖼 Demo
 
-![UI Screenshot](assets/ss.png)rt demo GIF (`demo.gif`) into the `assets/` directory.*
-
----
-
-## 📊 Pipeline Parameters & Benchmark Specs
-
-| Component | Configuration / Specification |
-| :--- | :--- |
-| **Document Chunking** | Size: 800 characters, Overlap: 100 characters |
-| **Dense Embedding Model** | `BAAI/bge-small-en-v1.5` (384 dimensions) |
-| **Sparse Vector Model** | FastEmbed `Qdrant/bm25` |
-| **Retrieval Depth** | Top-5 hybrid vector candidates per expanded query variation |
-| **Re-Ranker Model** | Cohere `rerank-v3.5` (Top-N: 5) |
-| **LLM Provider** | Groq (`llama3-70b-8192` / `mixtral-8x7b-32768`) |
-| **Memory Window** | Max 400 token history buffer with system prompt preservation |
+<p align="center">
+<img src="assets/ss.png" width="900">
+</p>
 
 ---
 
-## 📂 Repository Structure
+# ⚙ Tech Stack
 
-```
+| Category | Technology |
+|-----------|------------|
+| Framework | LangChain (LCEL) |
+| UI | Streamlit |
+| Vector Database | Qdrant |
+| Dense Embeddings | BAAI/bge-small-en-v1.5 |
+| Sparse Retrieval | BM25 |
+| LLM | Groq (Llama-3 / Mixtral) |
+| Re-Ranking | Cohere rerank-v3.5 |
+| Web Search | Tavily |
+| PDF Loader | PyMuPDF |
+| Language | Python |
+
+---
+
+# ⚡ Retrieval Pipeline
+
+### 1. PDF Processing
+
+- PyMuPDFLoader
+- RecursiveCharacterTextSplitter
+- Chunk Size: **800**
+- Chunk Overlap: **100**
+
+---
+
+### 2. Hybrid Retrieval
+
+Each user question is expanded into multiple search queries.
+
+The retriever combines:
+
+- Dense semantic embeddings
+- Sparse BM25 retrieval
+
+to improve recall compared to using either technique alone.
+
+---
+
+### 3. Corrective RAG (CRAG)
+
+Retrieved documents are evaluated by an LLM.
+
+If the retrieved context is:
+
+- Relevant → continue
+- Weak / Ambiguous → trigger Tavily Search
+
+This prevents answering from poor-quality retrieval.
+
+---
+
+### 4. Web Search Fallback
+
+When local documents are insufficient, the pipeline automatically retrieves fresh information using Tavily Search before generation.
+
+---
+
+### 5. Re-Ranking
+
+Candidate passages are re-ordered using Cohere's Cross-Encoder model to maximize the quality of the final context sent to the LLM.
+
+---
+
+### 6. Conversation Memory
+
+Chat history is maintained using LangChain message history.
+
+Older messages are trimmed automatically to keep prompts within token limits.
+
+---
+
+# 📊 Configuration
+
+| Parameter | Value |
+|------------|------|
+| Chunk Size | 800 |
+| Chunk Overlap | 100 |
+| Embedding Model | BAAI/bge-small-en-v1.5 |
+| Retrieval | Hybrid Search |
+| Retrieval Depth | Top-5 |
+| Re-ranker | Cohere rerank-v3.5 |
+| Memory | Trimmed Chat History |
+| LLM | Groq |
+
+---
+
+# 📁 Project Structure
+
+```text
 corrective_rag_engine/
-├── app.py                   # Streamlit user interface & async orchestration
-├── requirements.txt         # Project dependencies
-├── .env.example             # Environment variable template
-├── LICENSE                   # MIT License
-├── README.md                 # Technical documentation
-├── assets/                  # Interface screenshots and demo media
-│   └── README.md
+
+├── app.py
+├── requirements.txt
+├── README.md
+├── .env.example
+│
+├── assets/
+│   └── ss.png
+│
 ├── chain/
-│   └── final_chain.py       # LangChain LCEL pipeline execution
-├── config/
-│   ├── llm.py               # Groq LLM client & output parser setup
-│   ├── history.py           # In-memory conversation session store
-│   ├── models.py            # Model identifier constants
-│   ├── prompt.py            # System prompts for evaluation & query generation
-│   ├── vectordb.py          # Qdrant client & Hybrid VectorStore setup
-│   └── websearch.py         # Tavily web search integration wrapper
+│   └── final_chain.py
+│
 ├── ingestion/
-│   └── ingest.py            # PDF document loading, splitting & indexing
-└── retrieval/
-    ├── context.py           # Retrieval pipeline coordinator
-    ├── crag.py              # CRAG document relevance grading engine
-    ├── multiquery.py        # Asynchronous multi-query variation generator
-    └── reRank.py            # Cohere cross-encoder reranking implementation
+│   └── ingest.py
+│
+├── retrieval/
+│   ├── context.py
+│   ├── crag.py
+│   ├── multiquery.py
+│   └── rerank.py
+│
+└── config/
+    ├── history.py
+    ├── llm.py
+    ├── models.py
+    ├── prompt.py
+    ├── vectordb.py
+    └── websearch.py
 ```
 
 ---
 
-## ⚡ Quick Start Guide
+# 🚀 Getting Started
 
-### Prerequisites
-- Python 3.10+
-- Groq API Key
-- Qdrant Cloud Cluster Instance & API Key
-- Cohere API Key
-- Tavily Search API Key
-
-### 1. Installation
+## Clone Repository
 
 ```bash
 git clone https://github.com/demondiablo2823-png/corrective_rag_engine.git
+
 cd corrective_rag_engine
-python3 -m venv .venv
+```
+
+---
+
+## Create Environment
+
+```bash
+python -m venv .venv
+
 source .venv/bin/activate
+```
+
+Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+---
+
+## Install Dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment Variables
+---
 
-Create a `.env` file from the example template:
+## Configure Environment Variables
 
-```bash
-cp .env.example .env
-```
-
-Populate `.env` with your API credentials:
+Create a `.env` file.
 
 ```env
-GROQ_API_KEY=your_groq_api_key
-QDRANT_endpoint=your_qdrant_instance_url
-QDRANT_key=your_qdrant_api_key
-COHERENCE_api=your_cohere_api_key
-TAVILY_key=your_tavily_api_key
+GROQ_API_KEY=
+
+QDRANT_ENDPOINT=
+
+QDRANT_API_KEY=
+
+COHERE_API_KEY=
+
+TAVILY_API_KEY=
 ```
 
-### 3. Run the Application
+---
 
-Launch the Streamlit interface:
+## Run
 
 ```bash
 streamlit run app.py
 ```
 
-Open `http://localhost:8501` in your web browser.
+---
+
+# 🔮 Future Improvements
+
+- LangGraph workflow orchestration
+- GraphRAG integration
+- Local LLM support (Ollama/vLLM)
+- Semantic response caching
+- Docker deployment
+- User authentication
+- Multi-document collections
 
 ---
 
-## 🔮 Future Improvements
+# 📚 References
 
-- [ ] **Agentic Workflow Migration**: Re-architect pipeline state handling using LangGraph for explicit graph-based routing.
-- [ ] **GraphRAG Integration**: Incorporate knowledge graph relationships alongside vector embeddings for complex entity reasoning.
-- [ ] **Local LLM & Embedding Backend**: Add support for local inference via Ollama or vLLM to enable fully offline execution.
-- [ ] **Semantic Caching**: Integrate Redis/Qdrant response caching to reduce latency on repeated user queries.
-- [ ] **Dockerization**: Containerize application using Docker and Docker Compose.
+- Corrective Retrieval-Augmented Generation (CRAG)
+- LangChain LCEL
+- Qdrant Documentation
+- Cohere ReRank
+- Tavily Search
 
 ---
 
-## 📚 References & Papers
+# 📄 License
 
-- **Corrective RAG (CRAG)**: Yan et al. (2024). *Corrective Retrieval-Augmented Generation*. [arXiv Paper](https://arxiv.org/abs/2401.15884)
-- **LangChain Expression Language (LCEL)**: [LangChain Documentation](https://python.langchain.com/docs/concepts/lcel/)
-- **Qdrant Vector Database**: [Qdrant Documentation](https://qdrant.tech/documentation/)
-- **Cohere Rerank**: [Cohere Documentation](https://docs.cohere.com/docs/rerank-2)
+Released under the MIT License.
