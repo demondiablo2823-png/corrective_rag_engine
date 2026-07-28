@@ -30,9 +30,12 @@ def get_vectorstore() -> QdrantVectorStore:
     )
 
 def reset_collection(collection_name="rag"):
-    client = get_client()
-    if client.collection_exists(collection_name):
-        client.delete_collection(collection_name)
+    try:
+        client = get_client()
+        if client.collection_exists(collection_name):
+            client.delete_collection(collection_name)
+    except Exception as e:
+        print(f"Warning: Could not reset collection '{collection_name}': {e}")
 
 async def get_db(docs, k=5):
     reset_collection("rag")
