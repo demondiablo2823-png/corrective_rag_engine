@@ -4,15 +4,10 @@ from config.websearch import search
 from retrieval.reRank import ranker
 import asyncio
 
+_grade_chain = CRAG_PROMPT | get_llm() | output_parser()
 
-async def grade_document(query,doc):
-    prompt=CRAG_PROMPT
-    llm=get_llm()
-    op=output_parser()
-    response = (await (prompt|llm|op).ainvoke({
-        "question":query,
-        "context":doc
-    }))
+async def grade_document(query, doc):
+    response = await _grade_chain.ainvoke({"question": query, "context": doc})
     return 1 if response.strip().lower().startswith('y') else 0
 
 async def grade_all(query, document):

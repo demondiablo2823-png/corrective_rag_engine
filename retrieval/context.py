@@ -12,7 +12,7 @@ async def custom_retriever(query: str) -> list[Document]:
     queries = await multi_query(query)
 
     vs = get_vectorstore()
-    tasks = [vs.asimilarity_search(q, k=10) for q in queries]
+    tasks = [vs.asimilarity_search(q, k=5) for q in queries]
     results = await asyncio.gather(*tasks)
 
     all_docs = []
