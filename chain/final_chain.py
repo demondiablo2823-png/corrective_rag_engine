@@ -1,8 +1,12 @@
 from langchain_core.messages import trim_messages
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
-from langchain.chains import create_history_aware_retriever, create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
+try:
+    from langchain.chains import create_history_aware_retriever, create_retrieval_chain
+    from langchain.chains.combine_documents import create_stuff_documents_chain
+except ModuleNotFoundError:
+    from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
+    from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 
 from config.llm import get_llm
 from config.history import get_history
