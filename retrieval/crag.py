@@ -15,16 +15,21 @@ async def grade_document(query,doc):
     }))
     return 1 if response.strip().lower().startswith('y') else 0
 
-async def grade_all(query,document):
-    task=[]
+async def grade_all(query, document):
+    if not document:
+        return 'INCORRECT', []
+    task = []
     for d in document:
-        task.append(grade_document(query,d.page_content))
-    grade=await asyncio.gather(*task)    
-    score=sum(grade)/len(grade)
-    if score>=0.7 : accept='CORRECT'
-    elif score<=0.3 : accept='INCORRECT'
-    else : accept='AMBIGUOUS'
-    return accept,grade
+        task.append(grade_document(query, d.page_content))
+    grade = await asyncio.gather(*task)
+    score = sum(grade) / len(grade)
+    if score >= 0.7:
+        accept = 'CORRECT'
+    elif score <= 0.3:
+        accept = 'INCORRECT'
+    else:
+        accept = 'AMBIGUOUS'
+    return accept, grade
 
 
 
