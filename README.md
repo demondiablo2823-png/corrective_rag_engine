@@ -22,59 +22,44 @@ This repository implements a multi-stage retrieval and self-correction pipeline 
 - **Memory Management**: LangChain `trim_messages` window strategy (400 tokens limit) preserving system context and conversation history.
 
 ---
+# 🏗 Architecture
 
-## 🏗️ System Architecture
+```mermaid
+flowchart TD
+    A([User Query])
 
+    B["Multi-Query Expansion<br/>(3 Query Variations)"]
+
+    C["Hybrid Retrieval<br/>Qdrant (Dense + BM25)"]
+
+    D["Candidate Deduplication"]
+
+    E{"CRAG<br/>Relevance Grading"}
+
+    F["Local Documents"]
+
+    G["Tavily Web Search"]
+
+    H["Cohere Re-Rank<br/>(Top-N Context)"]
+
+    I["History-Aware Generation<br/>(Trimmed Memory)"]
+
+    J([Streamlit Chat UI])
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    E -- Relevant --> F
+    E -- Weak / Ambiguous --> G
+
+    F --> H
+    G --> H
+
+    H --> I
+    I --> J
 ```
-                          ┌──────────────────────────┐
-                          │    User Input Query      │
-                          └────────────┬─────────────┘
-                                       │
-                         ┌─────────────▼─────────────┐
-                         │   Multi-Query Expansion   │
-                         │    (3 Synthesized Queries) │
-                         └─────────────┬─────────────┘
-                                       │
-                         ┌─────────────▼─────────────┐
-                         │  Qdrant Vector Database   │
-                         │  (Hybrid: BGE-Small +     │
-                         │        FastEmbed BM25)    │
-                         └─────────────┬─────────────┘
-                                       │
-                         ┌─────────────▼─────────────┐
-                         │ Deduplicated Candidates   │
-                         └─────────────┬─────────────┘
-                                       │
-                         ┌─────────────▼─────────────┐
-                         │   CRAG Self-Grading Evaluator│
-                         └──────┬──────────────┬─────┘
-                                │              │
-           (CORRECT / AMBIGUOUS)│              │(INCORRECT / AMBIGUOUS)
-                                ▼              ▼
-                    ┌──────────────┐        ┌────────────────┐
-                    │ Document Pass│        │ Tavily Live    │
-                    │  (Relevant)  │        │ Web Search     │
-                    └──────┬───────┘        └───────┬────────┘
-                           │                        │
-                           └───────────┬────────────┘
-                                       │
-                         ┌─────────────▼─────────────┐
-                         │   Cohere Rerank v3.5      │
-                         │  (Cross-Encoder Ranking)  │
-                         └─────────────┬─────────────┘
-                                       │
-                         ┌─────────────▼─────────────┐
-                         │ History-Aware Trimmed Chain│
-                         │   (Groq Llama-3 / Mixtral) │
-                         └─────────────┬─────────────┘
-                                       │
-                         ┌─────────────▼─────────────┐
-                         │ Streamlit Chat UI + Source │
-                         │        Attribution        │
-                         └───────────────────────────┘
-```
-
----
 
 ## 🖼️ User Interface
 
