@@ -17,7 +17,7 @@
 
 ## 🌐 Live Demo
 
-**👉 https://YOUR-STREAMLIT-APP.streamlit.app**
+**👉 https://demon-crag.streamlit.app/**
 
 Upload a PDF, ask questions, and watch the retrieval pipeline automatically decide whether to answer from your documents or perform a live web search.
 
