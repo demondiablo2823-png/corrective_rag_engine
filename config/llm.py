@@ -2,12 +2,13 @@ from langchain_groq import ChatGroq
 from langchain_core.output_parsers import StrOutputParser
 from config.models import *
 from dotenv import load_dotenv
-load_dotenv()
 import os
-api=os.getenv("GROQ_API_KEY")
+
+load_dotenv()
 
 def get_llm():
-    return ChatGroq(model=groq_model,api_key=api)
+    api = os.getenv("GROQ_API_KEY", "").strip()
+    return ChatGroq(model=groq_model, api_key=api)
 
 _output_parser = None
 def output_parser():
