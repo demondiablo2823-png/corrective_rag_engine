@@ -76,7 +76,7 @@ flowchart TD
 |-----------|------------|
 | Framework | LangChain (LCEL) |
 | UI | Streamlit |
-| Vector Database | Qdrant |
+| Vector Database | Qdrant (Embedded Local Storage) |
 | Dense Embeddings | BAAI/bge-small-en-v1.5 |
 | Sparse Retrieval | BM25 |
 | LLM | Groq (Llama-3 / Mixtral) |
@@ -233,14 +233,10 @@ pip install -r requirements.txt
 
 ## Configure Environment Variables
 
-Create a `.env` file.
+Create a `.env` file (Qdrant runs embedded locally on disk, so no Qdrant credentials required).
 
 ```env
 GROQ_API_KEY=
-
-QDRANT_ENDPOINT=
-
-QDRANT_API_KEY=
 
 COHERE_API_KEY=
 
