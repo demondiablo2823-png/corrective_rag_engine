@@ -17,42 +17,65 @@ except Exception:
 st.set_page_config(page_title="Corrective RAG Engine", page_icon="🚀", layout="wide")
 st.title("🚀 Corrective RAG Chatbot")
 
+# --- SIDEBAR: BRING YOUR OWN KEY (BYOK) ---
 with st.sidebar:
-    st.header("🔑 API Keys")
+    st.header("🔑 Bring Your Own Key")
+    st.caption("This app uses a Bring-Your-Own-Key model. Your keys are kept in your browser session only and are never saved.")
+
     groq_api_key = st.text_input(
-        "Groq API Key *",
+        "Groq API Key (Required)",
         value=os.getenv("GROQ_API_KEY", ""),
         type="password",
-        help="Required for response generation. Free key at https://console.groq.com/keys"
+        placeholder="gsk_...",
+        help="Required for generating answers. Instant & free at console.groq.com/keys"
     )
+
     if groq_api_key:
         os.environ["GROQ_API_KEY"] = groq_api_key.strip()
+        st.success("✅ Groq Key Active")
+    else:
+        st.warning("⚠️ Groq Key Required")
+        st.markdown("[👉 Get a free Groq key in 30 seconds](https://console.groq.com/keys)")
 
-    with st.expander("Additional Keys (Optional)"):
+    with st.expander("⚙️ Optional API Keys"):
         cohere_key = st.text_input(
             "Cohere API Key (Re-Ranking)",
             value=os.getenv("COHERENCE_api", "") or os.getenv("COHERE_API_KEY", ""),
             type="password",
-            help="Optional for cross-encoder reranking."
+            placeholder="Optional",
+            help="For cross-encoder reranking. If blank, original retrieval order is used."
         )
         if cohere_key:
             os.environ["COHERENCE_api"] = cohere_key.strip()
             os.environ["COHERE_API_KEY"] = cohere_key.strip()
+            st.caption("✅ Cohere Active")
+        else:
+            st.markdown("[Get free Cohere key](https://dashboard.cohere.com/api-keys)")
 
         tavily_key = st.text_input(
             "Tavily API Key (Web Search Fallback)",
             value=os.getenv("TAVILY_key", "") or os.getenv("TAVILY_API_KEY", ""),
             type="password",
-            help="Optional for web search fallback when context is insufficient."
+            placeholder="Optional",
+            help="For live web fallback when document context is weak."
         )
         if tavily_key:
             os.environ["TAVILY_key"] = tavily_key.strip()
             os.environ["TAVILY_API_KEY"] = tavily_key.strip()
+            st.caption("✅ Tavily Active")
+        else:
+            st.markdown("[Get free Tavily key](https://app.tavily.com/) recommendations")
 
     st.markdown("---")
-    st.markdown("💡 *Get a free Groq API key at [console.groq.com](https://console.groq.com/keys)*")
+    st.markdown("### 🛠 Architecture")
+    st.caption("• Local Hybrid Vector DB (Qdrant)\n• Dense BGE + Sparse BM25\n• Multi-Query Expansion\n• CRAG Relevance Evaluation\n• Cross-Encoder Re-Ranking")
 
-uploaded_file = st.file_uploader("Upload a PDF", type="pdf")
+# Main page key banner if missing
+has_groq = bool(os.getenv("GROQ_API_KEY", "").strip())
+if not has_groq:
+    st.info("👋 **Welcome!** To get started, please paste your free **[Groq API Key](https://console.groq.com/keys)** in the sidebar on the left.")
+
+uploaded_file = st.file_uploader("Upload a PDF to chat with", type="pdf")
 
 MAX_FILE_SIZE = 50 * 1024 * 1024
 
@@ -66,13 +89,13 @@ if uploaded_file and "ingested" not in st.session_state:
         tmp.write(uploaded_file.read())
         tmp_path = tmp.name
 
-    with st.spinner("Ingesting document..."):
+    with st.spinner("Ingesting document and indexing vectors locally..."):
         asyncio.run(ingest(tmp_path))
 
     os.unlink(tmp_path)
     st.session_state.ingested = True
     st.session_state.messages = []
-    st.success("Document ready!")
+    st.success("Document ready! You can now ask questions below.")
 
 if "ingested" in st.session_state:
 
@@ -82,30 +105,31 @@ if "ingested" in st.session_state:
     for msg in st.session_state.messages:
         st.chat_message(msg["role"]).write(msg["content"])
 
-    question = st.chat_input("Ask a question...")
+    question = st.chat_input("Ask a question about your document...")
 
     if question:
-        if not os.getenv("GROQ_API_KEY"):
-            st.error("⚠️ Please enter a valid Groq API Key in the left sidebar to chat.")
+        current_key = os.getenv("GROQ_API_KEY", "").strip()
+        if not current_key:
+            st.error("⚠️ **Groq API Key required!** Please paste your key in the sidebar on the left to generate answers.")
             st.stop()
 
         st.chat_message("user").write(question)
         st.session_state.messages.append({"role": "user", "content": question})
 
-        with st.spinner("Thinking..."):
+        with st.spinner("Thinking & generating source-grounded response..."):
             try:
                 answer, sources = asyncio.run(ask(question))
             except Exception as e:
                 err_str = str(e).lower()
                 if "authentication" in err_str or "invalid api key" in err_str or "401" in err_str:
-                    answer = "❌ **Groq Authentication Error**: The Groq API key provided is invalid or expired. Please check your key in the left sidebar."
+                    answer = "❌ **Groq Authentication Error**: The Groq API key entered in the sidebar is invalid or expired. Please update your key in the sidebar."
                     sources = []
                 else:
                     raise e
 
         st.chat_message("assistant").write(answer)
         if sources:
-            with st.expander("Sources"):
+            with st.expander("Sources Attribution"):
                 for source in sources:
                     st.write(source)
 
@@ -117,5 +141,5 @@ if "ingested" in st.session_state:
         st.session_state.clear()
         st.rerun()
 
-else:
-    st.info("Please upload a PDF to start chatting.")
+elif not uploaded_file:
+    st.info("📄 Please upload a PDF document above to begin.")

@@ -19,12 +19,15 @@
 
 **👉 https://demon-crag.streamlit.app/**
 
+> 🔑 **Bring Your Own Key (BYOK):** Anyone can test the live demo immediately by pasting their free Groq API key in the app sidebar. No setup or subscription required!
+
 Upload a PDF, ask questions, and watch the retrieval pipeline automatically decide whether to answer from your documents or perform a live web search.
 
 ---
 
 ## ✨ Features
 
+- 🔑 Bring Your Own Key (BYOK) architecture with in-browser session isolation
 - 📄 Upload and chat with PDF documents
 - 🔍 Hybrid Retrieval (Dense + Sparse/BM25)
 - 🔄 Multi-Query Expansion for improved recall
